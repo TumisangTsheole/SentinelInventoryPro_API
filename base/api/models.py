@@ -46,7 +46,7 @@ class Item(models.Model):
     )
 
 
-class SotckMovement(models.Model):
+class StockMovement(models.Model):
     MOVEMENT_CHOICES = [
         ("IN", "Stock In"),
         ("OUT", "Stock Out"),
