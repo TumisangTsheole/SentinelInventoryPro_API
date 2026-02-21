@@ -46,7 +46,7 @@ class Item(models.Model):
     )
 
 
-class SotckMovement(models.Model):
+class StockMovement(models.Model):
     MOVEMENT_CHOICES = [
         ("IN", "Stock In"),
         ("OUT", "Stock Out"),
@@ -91,7 +91,7 @@ class AuditLog(models.Model):
         related_name="user_id",  # Prevents from using user.audittrail_set.all()
     )
     item_id = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        'Item',
         on_delete=models.CASCADE,
         related_name="item_id",  # prevents naming conflicts)
     )
