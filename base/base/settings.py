@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 	#'api',
 	'crum',
     'api.apps.ApiConfig',
+    'django_filters',
 ]
 
 # Add jwt settings
@@ -52,6 +53,11 @@ REST_FRAMEWORK = {
         'DEFAULT_AUTHENTICATION_CLASSES': (
             'rest_framework_simplejwt.authentication.JWTAuthentication',
         ),    
+         'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+        ),
 }
 
 SIMPLE_JWT = {

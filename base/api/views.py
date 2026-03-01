@@ -1,15 +1,23 @@
 from rest_framework import generics, viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from django.contrib.auth.models import User
 from . import models, serializers
 from .permissions import IsViewer, IsStocker, IsAdmin
 from .serializers import ItemPredictionSerializer
+from .filters import ItemFilter
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
     permission_classes = [permissions.IsAuthenticated, IsStocker]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'created_at']
+    ordering = ['name']
+
 
     def get_permissions(self):
         """
@@ -30,6 +38,11 @@ class ItemViewSet(viewsets.ModelViewSet):
     queryset = models.Item.objects.all()
     serializer_class = serializers.ItemSerializer
     permission_classes = [permissions.IsAuthenticated, IsStocker]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = ItemFilter
+    search_fields = ['name', 'sku', 'description']
+    ordering_fields = ['name', 'price', 'quantity', 'created_at']
+    ordering = ['name']  # default ordering
 
     def perform_create(self, serializer):
         # Automatically set created_by and updated_by to the current user
@@ -83,20 +96,20 @@ class ItemViewSet(viewsets.ModelViewSet):
         serializer = ItemPredictionSerializer(items, many=True)
         return Response(serializer.data)            
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated, IsViewer])
-        def low_stock(self, request):
-            """Return all items where quantity <= reorder_threshold."""
-            items = self.get_queryset().filter(quantity__lte=models.F('reorder_threshold'))
-            serializer = self.get_serializer(items, many=True)
-            return Response(serializer.data)
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated, IsViewer])
+    def low_stock(self, request):
+        """Return all items where quantity <= reorder_threshold."""
+        items = self.get_queryset().filter(quantity__lte=models.F('reorder_threshold'))
+        serializer = self.get_serializer(items, many=True)
+        return Response(serializer.data)
 
-    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated, IsViewer])
-        def movements(self, request, pk=None):
-            """Return all stock movements for this item."""
-            item = self.get_object()
-            movements = item.stockmovement_set.all().order_by('-created_at')
-            serializer = StockMovementSerializer(movements, many=True)
-            return Response(serializer.data)            
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAuthenticated, IsViewer])
+    def movements(self, request, pk=None):
+        """Return all stock movements for this item."""
+        item = self.get_object()
+        movements = item.stockmovement_set.all().order_by('-created_at')
+        serializer = StockMovementSerializer(movements, many=True)
+        return Response(serializer.data)            
             
 
 class StockMovementViewSet(viewsets.ModelViewSet):
