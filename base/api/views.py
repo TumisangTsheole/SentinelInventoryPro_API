@@ -83,6 +83,22 @@ class ItemViewSet(viewsets.ModelViewSet):
         serializer = ItemPredictionSerializer(items, many=True)
         return Response(serializer.data)            
 
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated, IsViewer])
+        def low_stock(self, request):
+            """Return all items where quantity <= reorder_threshold."""
+            items = self.get_queryset().filter(quantity__lte=models.F('reorder_threshold'))
+            serializer = self.get_serializer(items, many=True)
+            return Response(serializer.data)
+
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated, IsViewer])
+        def movements(self, request, pk=None):
+            """Return all stock movements for this item."""
+            item = self.get_object()
+            movements = item.stockmovement_set.all().order_by('-created_at')
+            serializer = StockMovementSerializer(movements, many=True)
+            return Response(serializer.data)            
+            
+
 class StockMovementViewSet(viewsets.ModelViewSet):
     queryset = models.StockMovement.objects.all()
     serializer_class = serializers.StockMovementSerializer
