@@ -12,9 +12,23 @@ class ItemViewSet(viewsets.ModelViewSet):
     queryset = models.Item.objects.all()
     serializer_class = serializers.ItemSerializer
 
+    def perform_create(self, serializer):
+        # Automatically set created_by and updated_by to the current user
+        serializer.save(
+            created_by=self.request.user,
+            updated_by=self.request.user
+        )
+
+    def perform_update(self, serializer):
+        # Only update the updated_by field (created_by stays as original)
+        serializer.save(updated_by=self.request.user)
+
 class StockMovementViewSet(viewsets.ModelViewSet):
     queryset = models.StockMovement.objects.all()
     serializer_class = serializers.StockMovementSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 class RestockAlertViewSet(viewsets.ModelViewSet):
     queryset = models.RestockAlert.objects.all()
