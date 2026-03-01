@@ -6,7 +6,6 @@ This API allows you to manage inventory items, categories, stock movements, and 
 
 Base URL
 https://sentinelinventorypro-api.onrender.com/api/
-(Replace with your actual deployment URL.)
 
 ## Authentication
 The API uses JWT (JSON Web Tokens) for authentication.
