@@ -5,7 +5,7 @@ Sentinel Inventory Pro is a high-integrity inventory management system designed 
 This API allows you to manage inventory items, categories, stock movements, and restock alerts with full audit logging and role-based access control.
 
 Base URL
-https://your-app-name.onrender.com/api/
+https://sentinelinventorypro-api.onrender.com/api/
 (Replace with your actual deployment URL.)
 
 ## Authentication
