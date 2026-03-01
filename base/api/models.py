@@ -45,6 +45,34 @@ class Item(models.Model):
         null=True,
     )
 
+    def get_average_daily_consumption(self, days=30):
+        """
+        Calculate average daily consumption based on OUT movements in the last `days` days.
+        Returns 0 if no movements or item has no consumption.
+        """
+        since_date = timezone.now() - timedelta(days=days)
+        out_movements = self.stockmovement_set.filter(
+            movement_type='OUT',
+            created_at__gte=since_date
+        )
+        total_out = out_movements.aggregate(total=Sum('quantity_change'))['total'] or 0
+        # quantity_change for OUT is negative, so total_out will be negative or zero.
+        # Convert to positive number.
+        total_out_abs = abs(total_out)
+        if total_out_abs == 0:
+            return Decimal('0.0')
+        # Average per day over the period
+        return Decimal(total_out_abs) / Decimal(days)
+
+    def predicted_days_until_zero(self):
+        """
+        Calculate how many days until stock reaches zero based on current quantity
+        and average daily consumption.
+        """
+        avg_consumption = self.get_average_daily_consumption()
+        if avg_consumption <= 0:
+            return None  # No consumption data, cannot predict
+        return self.quantity / avg_consumption
 
 class StockMovement(models.Model):
     MOVEMENT_CHOICES = [

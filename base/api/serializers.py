@@ -107,6 +107,33 @@ class ItemSerializer(serializers.ModelSerializer):
             
         return data
 
+class ItemPredictionSerializer(serializers.ModelSerializer):
+    avg_daily_consumption = serializers.SerializerMethodField()
+    days_until_zero = serializers.SerializerMethodField()
+    needs_restock = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Item
+        fields = [
+            'id', 'sku', 'name', 'quantity', 'reorder_threshold',
+            'avg_daily_consumption', 'days_until_zero', 'needs_restock'
+        ]
+
+    def get_avg_daily_consumption(self, obj):
+        return obj.get_average_daily_consumption()
+
+    def get_days_until_zero(self, obj):
+        days = obj.predicted_days_until_zero()
+        if days is None:
+            return None
+        return round(days, 1)
+
+    def get_needs_restock(self, obj):
+        days = obj.predicted_days_until_zero()
+        if days is None:
+            return False
+        return days <= 14
+        
 
 # ---------------------------------------------------------------------------- #
 #                                  STOCK MOVEMENT                                    #
