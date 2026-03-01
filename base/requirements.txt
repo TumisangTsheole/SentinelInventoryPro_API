@@ -1,0 +1,10 @@
+Django
+djangorestframework
+djangorestframework-simplejwt
+django-crum
+django-filter
+gunicorn
+psycopg2-binary
+whitenoise
+python-decouple
+dj-database-url  # optional, but handy

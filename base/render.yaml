@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: sentinel-inventory-api
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn base.wsgi"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sentinel-inventory-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true 
+      - key: DEBUG
+        value: false
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+
+databases:
+  - name: sentinel-inventory-db
+    databaseName: inventory
+    user: inventory_user
+    plan: free  
