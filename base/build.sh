@@ -11,7 +11,7 @@ python manage.py migrate
 # Collect static files
 python manage.py collectstatic --no-input
 
-# Create superuser if environment variables are set and user doesn't exist
+# Create superuser using environment variables (if provided)
 if [[ -n "$DJANGO_SUPERUSER_USERNAME" && -n "$DJANGO_SUPERUSER_EMAIL" && -n "$DJANGO_SUPERUSER_PASSWORD" ]]; then
     echo "Attempting to create superuser: $DJANGO_SUPERUSER_USERNAME"
     python manage.py shell <<EOF
